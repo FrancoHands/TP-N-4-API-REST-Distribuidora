@@ -1,15 +1,16 @@
-const Cliente = require('../models/clientes.model');
+import type { NextFunction, Request, Response } from 'express';
+import * as Cliente from '../models/clientes.model.js';
 
-async function getAll(req, res, next) {
+async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { ciudad } = req.query;
+    const ciudad = req.query.ciudad as string | undefined;
     res.status(200).json(await Cliente.findAll({ ciudad }));
   } catch (error) {
     next(error);
   }
 }
 
-async function getById(req, res, next) {
+async function getById(req: Request, res: Response, next: NextFunction) {
   try {
     const cliente = await Cliente.findById(Number(req.params.id));
 
@@ -23,7 +24,7 @@ async function getById(req, res, next) {
   }
 }
 
-async function create(req, res, next) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { nombre, numero_telefono, direccion, ciudad, email } = req.body;
 
@@ -38,7 +39,7 @@ async function create(req, res, next) {
   }
 }
 
-async function update(req, res, next) {
+async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const { nombre, numero_telefono, direccion, ciudad, email } = req.body;
@@ -47,33 +48,23 @@ async function update(req, res, next) {
       return res.status(400).json({ error: 'Faltan datos obligatorios del cliente' });
     }
 
-    const filas = await Cliente.update(id, { nombre, numero_telefono, direccion, ciudad, email });
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
-    }
-
-    res.status(200).json(await Cliente.findById(id));
+    const actualizado = await Cliente.update(id, { nombre, numero_telefono, direccion, ciudad, email });
+    res.status(200).json(actualizado);
   } catch (error) {
     next(error);
   }
 }
 
-async function remove(req, res, next) {
+async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const filas = await Cliente.remove(Number(req.params.id));
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
-    }
-
+    await Cliente.remove(Number(req.params.id));
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 }
 
-async function getPedidos(req, res, next) {
+async function getPedidos(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
 
@@ -87,7 +78,7 @@ async function getPedidos(req, res, next) {
   }
 }
 
-async function getEstadisticas(req, res, next) {
+async function getEstadisticas(req: Request, res: Response, next: NextFunction) {
   try {
     res.status(200).json(await Cliente.getEstadisticas());
   } catch (error) {
@@ -95,4 +86,4 @@ async function getEstadisticas(req, res, next) {
   }
 }
 
-module.exports = { getAll, getById, create, update, remove, getPedidos, getEstadisticas };
+export { getAll, getById, create, update, remove, getPedidos, getEstadisticas };

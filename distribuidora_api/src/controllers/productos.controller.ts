@@ -1,8 +1,10 @@
-const Producto = require('../models/productos.model');
+import type { NextFunction, Request, Response } from 'express';
+import * as Producto from '../models/productos.model.js';
 
-async function getAll(req, res, next) {
+async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { categoria, precio_max } = req.query;
+    const categoria = req.query.categoria as string | undefined;
+    const precio_max = req.query.precio_max as string | undefined;
 
     if (precio_max !== undefined && isNaN(Number(precio_max))) {
       return res.status(400).json({ error: 'precio_max debe ser un número' });
@@ -14,7 +16,7 @@ async function getAll(req, res, next) {
   }
 }
 
-async function getById(req, res, next) {
+async function getById(req: Request, res: Response, next: NextFunction) {
   try {
     const producto = await Producto.findById(Number(req.params.id));
 
@@ -28,7 +30,7 @@ async function getById(req, res, next) {
   }
 }
 
-async function create(req, res, next) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { nombre, categoria, marca, precio_pesos, stock, proveedor_id } = req.body;
 
@@ -43,7 +45,7 @@ async function create(req, res, next) {
   }
 }
 
-async function update(req, res, next) {
+async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const { nombre, categoria, marca, precio_pesos, stock, proveedor_id } = req.body;
@@ -52,33 +54,23 @@ async function update(req, res, next) {
       return res.status(400).json({ error: 'Faltan datos obligatorios del producto' });
     }
 
-    const filas = await Producto.update(id, { nombre, categoria, marca, precio_pesos, stock, proveedor_id });
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    res.status(200).json(await Producto.findById(id));
+    const actualizado = await Producto.update(id, { nombre, categoria, marca, precio_pesos, stock, proveedor_id });
+    res.status(200).json(actualizado);
   } catch (error) {
     next(error);
   }
 }
 
-async function remove(req, res, next) {
+async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const filas = await Producto.remove(Number(req.params.id));
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
+    await Producto.remove(Number(req.params.id));
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 }
 
-async function getEstadisticas(req, res, next) {
+async function getEstadisticas(req: Request, res: Response, next: NextFunction) {
   try {
     res.status(200).json(await Producto.getEstadisticas());
   } catch (error) {
@@ -86,4 +78,4 @@ async function getEstadisticas(req, res, next) {
   }
 }
 
-module.exports = { getAll, getById, create, update, remove, getEstadisticas };
+export { getAll, getById, create, update, remove, getEstadisticas };

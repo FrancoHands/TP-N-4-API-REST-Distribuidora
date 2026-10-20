@@ -1,15 +1,16 @@
-const Compania = require('../models/companiasEnvio.model');
+import type { NextFunction, Request, Response } from 'express';
+import * as Compania from '../models/companiasEnvio.model.js';
 
-async function getAll(req, res, next) {
+async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { nombre } = req.query;
+    const nombre = req.query.nombre as string | undefined;
     res.status(200).json(await Compania.findAll({ nombre }));
   } catch (error) {
     next(error);
   }
 }
 
-async function getById(req, res, next) {
+async function getById(req: Request, res: Response, next: NextFunction) {
   try {
     const compania = await Compania.findById(Number(req.params.id));
 
@@ -23,7 +24,7 @@ async function getById(req, res, next) {
   }
 }
 
-async function create(req, res, next) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { nombre, numero_telefono } = req.body;
 
@@ -38,7 +39,7 @@ async function create(req, res, next) {
   }
 }
 
-async function update(req, res, next) {
+async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const { nombre, numero_telefono } = req.body;
@@ -47,33 +48,23 @@ async function update(req, res, next) {
       return res.status(400).json({ error: 'Faltan datos obligatorios de la compañía' });
     }
 
-    const filas = await Compania.update(id, { nombre, numero_telefono });
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Compañía de envío no encontrada' });
-    }
-
-    res.status(200).json(await Compania.findById(id));
+    const actualizado = await Compania.update(id, { nombre, numero_telefono });
+    res.status(200).json(actualizado);
   } catch (error) {
     next(error);
   }
 }
 
-async function remove(req, res, next) {
+async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const filas = await Compania.remove(Number(req.params.id));
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Compañía de envío no encontrada' });
-    }
-
+    await Compania.remove(Number(req.params.id));
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 }
 
-async function getPedidos(req, res, next) {
+async function getPedidos(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
 
@@ -87,7 +78,7 @@ async function getPedidos(req, res, next) {
   }
 }
 
-async function getEstadisticas(req, res, next) {
+async function getEstadisticas(req: Request, res: Response, next: NextFunction) {
   try {
     res.status(200).json(await Compania.getEstadisticas());
   } catch (error) {
@@ -95,4 +86,4 @@ async function getEstadisticas(req, res, next) {
   }
 }
 
-module.exports = { getAll, getById, create, update, remove, getPedidos, getEstadisticas };
+export { getAll, getById, create, update, remove, getPedidos, getEstadisticas };

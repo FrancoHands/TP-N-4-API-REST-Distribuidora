@@ -1,6 +1,6 @@
-const express = require('express');
-const controller = require('../controllers/pedidos.controller');
-const validarId = require('../middlewares/validarId');
+import express from 'express';
+import * as controller from '../controllers/pedidos.controller.js';
+import validarId from '../middlewares/validarId.js';
 
 const router = express.Router();
 
@@ -10,4 +10,4 @@ router.post('/', controller.create);
 router.put('/:id', validarId, controller.update);
 router.delete('/:id', validarId, controller.remove);
 
-module.exports = router;
+export default router;

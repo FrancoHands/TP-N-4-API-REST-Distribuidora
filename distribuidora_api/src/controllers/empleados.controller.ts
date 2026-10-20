@@ -1,15 +1,16 @@
-const Empleado = require('../models/empleados.model');
+import type { NextFunction, Request, Response } from 'express';
+import * as Empleado from '../models/empleados.model.js';
 
-async function getAll(req, res, next) {
+async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { cargo } = req.query;
+    const cargo = req.query.cargo as string | undefined;
     res.status(200).json(await Empleado.findAll({ cargo }));
   } catch (error) {
     next(error);
   }
 }
 
-async function getById(req, res, next) {
+async function getById(req: Request, res: Response, next: NextFunction) {
   try {
     const empleado = await Empleado.findById(Number(req.params.id));
 
@@ -23,7 +24,7 @@ async function getById(req, res, next) {
   }
 }
 
-async function create(req, res, next) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { nombre, apellido, cargo, email, fecha_ingreso } = req.body;
 
@@ -38,7 +39,7 @@ async function create(req, res, next) {
   }
 }
 
-async function update(req, res, next) {
+async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const { nombre, apellido, cargo, email, fecha_ingreso } = req.body;
@@ -47,33 +48,23 @@ async function update(req, res, next) {
       return res.status(400).json({ error: 'Faltan datos obligatorios del empleado' });
     }
 
-    const filas = await Empleado.update(id, { nombre, apellido, cargo, email, fecha_ingreso });
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
-    }
-
-    res.status(200).json(await Empleado.findById(id));
+    const actualizado = await Empleado.update(id, { nombre, apellido, cargo, email, fecha_ingreso });
+    res.status(200).json(actualizado);
   } catch (error) {
     next(error);
   }
 }
 
-async function remove(req, res, next) {
+async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const filas = await Empleado.remove(Number(req.params.id));
-
-    if (filas === 0) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
-    }
-
+    await Empleado.remove(Number(req.params.id));
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 }
 
-async function getPedidos(req, res, next) {
+async function getPedidos(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
 
@@ -87,7 +78,7 @@ async function getPedidos(req, res, next) {
   }
 }
 
-async function getEstadisticas(req, res, next) {
+async function getEstadisticas(req: Request, res: Response, next: NextFunction) {
   try {
     res.status(200).json(await Empleado.getEstadisticas());
   } catch (error) {
@@ -95,4 +86,4 @@ async function getEstadisticas(req, res, next) {
   }
 }
 
-module.exports = { getAll, getById, create, update, remove, getPedidos, getEstadisticas };
+export { getAll, getById, create, update, remove, getPedidos, getEstadisticas };
